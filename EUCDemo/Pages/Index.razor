@@ -1,0 +1,89 @@
+﻿@page "/"
+@page "/Index"
+@using EUCDemo.Models
+@using Microsoft.Extensions.Localization
+@inject Data.DemoContext dbContext
+@inject ILogger<Index> logger
+@inject NavigationManager navigation
+@inject IStringLocalizer<Index> stringLocalizer
+
+<PageTitle>EUC demo</PageTitle>
+
+<h1>EUC demo application</h1>
+<h2>@culture</h2>
+
+@if (_last_exception != null)
+{
+    <div class="h1 alert-warning">@_last_exception.Message</div>
+}
+else if (_osoba != null && _staty!=null)
+{
+    <EditForm OnValidSubmit="@ZalozitOsobu" EditContext="@editContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label class="form-label">@GetString("name")</label>
+            <div class="input-group mb-3">
+                <InputText class="form-control" @bind-Value="_osoba.Jmeno"></InputText>
+            </div>
+            <label class="form-label">@GetString("surname")</label>
+            <div class="input-group mb-3">
+                <InputText class="form-control" @bind-Value="_osoba.Prijmeni" />
+            </div>
+            <label class="form-label">@GetString("e-mail")</label>
+            <div class="input-group mb-3">
+                <InputText class="form-control" @bind-Value="_osoba.Email" />
+            </div>
+            <label class="form-label">@GetString("has-birthnumber")</label>
+            <div class="input-group mb-3">
+                <InputCheckbox class="form-check-input" @bind-Value="_osoba.MaRc" />
+            </div>
+            <label class="form-label">@GetString("birth-number")</label>
+            <div class="input-group mb-3">
+                <InputText class="form-control" @bind-Value="_osoba.RC" />
+            </div>
+            <label class="form-label">@GetString("birth-date")</label>
+            <div class="input-group mb-3">
+                <InputDate class="form-control" @bind-Value="_osoba.DatNarozeni" />
+            </div>
+            <label class="form-label">@GetString("gender")</label>
+            <div class="input-group mb-3">
+                <InputSelect class="form-control selectpicker" @bind-Value="_osoba.Pohlavi">
+                    @foreach (var item in Enum.GetValues<Pohlavi>())
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </InputSelect>
+            </div>
+            <label>@GetString("country")</label>
+            <div class="input-group mb-3">
+                <InputSelect class="form-control selectpicker" @bind-Value="_osoba.StatId">
+                    <option>@GetString("select-country")</option>
+                    @foreach (var item in _staty)
+                    {
+                        <option value="@item.StatId">@item.Nazev</option>
+                    }
+                </InputSelect>
+            </div>
+            <label class="form-label">@GetString("gdpr-consent")</label>
+            <div class="input-group mb-3">
+                <InputCheckbox class="form-check-input" @bind-Value="_osoba.SouhlasSGDPR" />
+            </div>
+        </div>
+        <div class="btn-group pt-4">
+            <button type="submit" class="btn btn-primary">@GetString("update")</button>
+            <button class="btn btn-secondary" @onclick="Zrusit">@GetString("cancel")</button>
+        </div>
+    </EditForm>
+}
+else
+{
+    <div>Loading ...</div>
+}
+
+@code{
+    [Parameter]
+    [SupplyParameterFromQuery()]
+    public string? culture { get; set; }
+}
